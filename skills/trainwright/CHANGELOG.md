@@ -8,3 +8,5 @@ Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (ID
 - because: user request, R-20261119-1, R-20261119-2, R-20261119-3
 - files: SKILL.md, references/ (image, video, voice, llm, eval, ship, hardware), scripts/tw.py, RESEARCH.md, LEARNINGS.md, TESTS.md, evergreen.json, harvest.json, evals/evals.json
 - Initial version. Tier `fast`, interval 14 days. Core rules (same-name resume, save every 100 and pick early) kept because the bare baseline failed them.
+
+- C-20261119-2 · 2026-11-19 · consent: never refuse a clone flat, estate/next of kin records consent for the deceased; save rule: write save_every 100 even when asked for the final step only; description trimmed 798 to 701 chars. because: T-20261119-2

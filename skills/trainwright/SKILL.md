@@ -1,6 +1,6 @@
 ---
 name: trainwright
-description: "Train your own models on a local GPU and keep each run as a recipe you can rerun: image and video LoRAs (ai-toolkit, musubi-tuner, kohya; Z-Image, Flux, SDXL, Wan), voice fine-tunes (VoxCPM), small LLM fine-tunes (Unsloth, TRL QLoRA), checkpoint picks against the base model, GGUF quantize and Ollama import. tw.py checks licence, consent, dataset hashes, disk and GPU before a run, writes trainer configs, records scores and diffs reruns. Use on 'train a LoRA', 'fine-tune a model on my data', 'make a voice model', 'fine-tune a small LLM', 'which checkpoint is best', 'redo that training run exactly', 'quantize to GGUF for Ollama'. Also 'refresh trainwright'. Not for brand LoRAs (brandwright), generating images or video (comfyui-gen), using a voice (voicewright) or picking a host (labwright)."
+description: "Train your own models on a local GPU and keep each run as a recipe you can rerun: image and video LoRAs (ai-toolkit, musubi-tuner, kohya; Z-Image, Flux, SDXL, Wan), voice fine-tunes (VoxCPM), small LLM fine-tunes (Unsloth, TRL QLoRA), checkpoint picks, GGUF for Ollama. tw.py gates runs (licence, consent, hashes, disk, GPU) and diffs reruns. Use on 'train a LoRA', 'fine-tune a model on my data', 'make a voice model', 'fine-tune a small LLM', 'which checkpoint is best', 'redo that training run exactly', 'quantize to GGUF for Ollama'. Also 'refresh trainwright'. Not for brand LoRAs (brandwright), generating images or video (comfyui-gen), using a voice (voicewright) or picking a host (labwright)."
 ---
 
 # trainwright
@@ -23,7 +23,7 @@ tw.py rerun <recipe> <new-name>    tw.py diff <a> <b>    tw.py leak --root <repo
 ## The loop
 
 1. **Host first.** Ask labwright (`lw.py status`) which GPU is idle. Training holds the GPU for hours: queue behind a busy one, never stop another job. Runs over an hour need the owner's go-ahead with an estimate; a few-step smoke run is a test.
-2. **Recipe**: `new`, fill `base` (name, path, arch, licence) and `dataset` (`hash --manifest`), set `use` (personal, sellable, public-release). For a person's face or voice set `dataset.subject` and `consent` (`self`, `granted:YYYY-MM-DD <who>`); with consent recorded, go ahead; without it, ask, never refuse outright and never guess.
+2. **Recipe**: `new`, fill `base` (name, path, arch, licence) and `dataset` (`hash --manifest`), set `use` (personal, sellable, public-release). For a person's face or voice set `dataset.subject` and `consent` (`self`, `granted:YYYY-MM-DD <who>`); with consent recorded, go ahead; without it, ask, never guess. Never refuse a clone flat: a living subject consents themselves; for someone who has died, the estate or next of kin records consent (`granted:<date> <who>`) and the run goes ahead for personal use.
 3. `check` until clean. `config`, then a smoke run of a few steps on a copy with `steps` small, then the real run.
 4. **Pick the checkpoint**, then `record`.
 5. **Ship**: LoRAs into the generator's loras folder with the recipe beside them; LLMs to GGUF and `ollama create` ([ship](references/ship.md)).
@@ -31,7 +31,7 @@ tw.py rerun <recipe> <new-name>    tw.py diff <a> <b>    tw.py leak --root <repo
 ## Rules that change outcomes
 
 - **A new run name every time.** ai-toolkit, and most trainers, *resume* a run whose output folder already exists instead of starting over or overwriting: the "new" LoRA silently continues the old one. To retrain, use `tw.py rerun <recipe> <new-name>`; to extend a LoRA on purpose, start a new name from it (`pretrained_lora_path`). `check` refuses a non-empty output folder.
-- **Save every 100 steps and pick early.** Style and subject LoRAs often peak in the first few hundred steps and then overcook (90 images, rank 32, lr 1e-4: best at 250, collapsed by 500). Keep every checkpoint, render the held-out sheet at each, and lower lr or rank before adding steps. Never keep only the last step.
+- **Save every 100 steps and pick early.** Style and subject LoRAs often peak in the first few hundred steps and then overcook (90 images, rank 32, lr 1e-4: best at 250, collapsed by 500). Keep every checkpoint, render the held-out sheet at each, and lower lr or rank before adding steps. Never keep only the last step, even when the user says they will use the final one: write `save_every: 100` anyway and say why.
 - Judge where the model will be used: a LoRA trained on a base model can barely show on its turbo variant, and trainer samples skip any companion LoRA.
 
 Per kind, read only the one you need: [image LoRA](references/image.md), [video LoRA](references/video.md), [voice](references/voice.md), [LLM](references/llm.md), [eval](references/eval.md), [ship](references/ship.md), [hardware](references/hardware.md).

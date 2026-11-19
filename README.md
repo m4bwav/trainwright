@@ -1,3 +1,5 @@
+![trainwright banner](.github/images/banner.jpg)
+
 # trainwright
 
 A Claude Code plugin for training your own models on a local GPU and keeping each run as a recipe you can rerun: image and video LoRAs (ai-toolkit, musubi-tuner, kohya), voice fine-tunes (VoxCPM), small LLM fine-tunes (Unsloth, TRL QLoRA), checkpoint picks against the base model, GGUF quantize and Ollama import.
