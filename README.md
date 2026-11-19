@@ -20,9 +20,9 @@ Ask "train a style LoRA on this folder", "fine-tune a small LLM on my notes", "w
 ```
 python skills/trainwright/scripts/tw.py new image-lora my-style
 python skills/trainwright/scripts/tw.py hash datasets/my-style --manifest --source "own photos"
-python skills/trainwright/scripts/tw.py check my-style.json
-python skills/trainwright/scripts/tw.py config my-style.json --trainer ai-toolkit
-python skills/trainwright/scripts/tw.py run my-style.json my-style.yaml --dry
+python skills/trainwright/scripts/tw.py check my-style.recipe.json
+python skills/trainwright/scripts/tw.py config my-style.recipe.json --trainer ai-toolkit
+python skills/trainwright/scripts/tw.py run my-style.recipe.json my-style.ai-toolkit.yaml --dry
 ```
 
 Python 3.9+, standard library only; trainers run as subprocesses.

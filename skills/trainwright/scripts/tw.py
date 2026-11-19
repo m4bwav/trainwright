@@ -281,15 +281,22 @@ def aitoolkit_config(r):
 def cmd_config(a):
     r = load_json(a.recipe)
     t = a.trainer or r["trainer"]["name"]
-    outp = Path(a.out or Path(a.recipe).with_suffix("").as_posix() + f".{t}")
+    stem = Path(a.recipe).name
+    for suf in (".recipe.json", ".json"):
+        if stem.endswith(suf):
+            stem = stem[: -len(suf)]
+            break
+    outp = Path(a.out) if a.out else Path(a.recipe).parent / f"{stem}.{t}"
     if t == "ai-toolkit":
         text = to_yaml(aitoolkit_config(r)) + "\n"
-        outp = outp.with_suffix(".yaml") if outp.suffix != ".yaml" else outp
+        outp = outp if a.out else outp.with_name(outp.name + ".yaml")
         outp.write_text(text, encoding="utf-8", newline="\n")
         proven = True
     else:
         # Other trainers: a neutral JSON of the settings; the reference for that kind maps it to flags.
-        outp = outp.with_suffix(".json")
+        outp = outp if a.out else outp.with_name(outp.name + ".json")
+        if outp.resolve() == Path(a.recipe).resolve():
+            out({"ok": False, "error": "config output would overwrite the recipe; pass --out"}, 1)
         save_json(outp, {"trainer": t, "base": r["base"]["path"], "dataset": r["dataset"]["root"], **r["config"]})
         proven = False
     out({"ok": True, "trainer": t, "config": str(outp), "proven_on_real_trainer": proven,

@@ -1,0 +1,323 @@
+=== new
+$ python tw.py new image-lora my-style
+{
+ "ok": true,
+ "recipe": "my-style.recipe.json",
+ "next": "fill base, dataset, then tw.py check"
+}
+exit 0
+
+=== new-exists
+$ python tw.py new image-lora my-style
+{
+ "ok": false,
+ "error": "my-style.recipe.json exists; pick a new name or --force"
+}
+exit 1
+
+=== new-badkind
+$ python tw.py new audio x
+{
+ "ok": false,
+ "error": "kind must be one of ('image-lora', 'video-lora', 'voice', 'llm')"
+}
+exit 1
+
+=== check-empty
+$ python tw.py check my-style.recipe.json --shallow
+{
+ "ok": false,
+ "fail": [
+  "base.name is empty",
+  "base.path is empty",
+  "base.licence is empty",
+  "base.sha256 is empty (tw.py hash <file>)",
+  "dataset.items is empty (tw.py hash --manifest <folder> fills it)"
+ ],
+ "warn": []
+}
+exit 2
+
+=== hash-base
+$ python tw.py hash base.safetensors
+{
+ "ok": true,
+ "file": "base.safetensors",
+ "sha256": "c2f1b96774221247cf2d2908709b53940b2a4c4b23ccc3c9dfad40f74a75c9b9"
+}
+exit 0
+
+=== hash-manifest
+$ python tw.py hash datasets/my-style --manifest --source own photos
+{
+ "ok": true,
+ "root": "datasets\\my-style",
+ "count": 4,
+ "items": [
+  {
+   "file": "img1.png",
+   "sha256": "3f0aadd1667d7b31846d4aa043295e21c03f791d7d4c10ff9a150a71a9d40ea2",
+   "source": "own photos"
+  },
+  {
+   "file": "img1.txt",
+   "sha256": "80ab943597ec8dc055c3d1efd77b07acc2157f0de60b53ccab7375803a31ecb0",
+   "source": "own photos"
+  },
+  {
+   "file": "img2.png",
+   "sha256": "7a5e9fd544fdc40e6697937f9fc33daf325ea54d86e8d50ef736fac8513cfad9",
+   "source": "own photos"
+  },
+  {
+   "file": "img2.txt",
+   "sha256": "f8125d97960d2bea660de8f02d325b5b1b27cd49566ab7760f019036ed38a416",
+   "source": "own photos"
+  }
+ ]
+}
+exit 0
+
+=== check-clean
+$ python tw.py check my-style.recipe.json --shallow
+{
+ "ok": true,
+ "fail": [],
+ "warn": []
+}
+exit 0
+
+=== config
+$ python tw.py config my-style.recipe.json --trainer ai-toolkit
+{
+ "ok": true,
+ "trainer": "ai-toolkit",
+ "config": "my-style.recipe.yaml",
+ "proven_on_real_trainer": true,
+ "note": null
+}
+exit 0
+
+=== config-yaml
+job: "extension"
+config:
+  name: "my-style"
+  process:
+    - type: "sd_trainer"
+      training_folder: "<tmp>/output"
+      device: "cuda:0"
+      trigger_word: "mystyle"
+      network:
+        type: "lora"
+        linear: 16
+        linear_alpha: 16
+      save:
+        dtype: "float16"
+        save_every: 100
+        max_step_saves_to_keep: 50
+      datasets:
+        - folder_path: "<tmp>\\datasets\\my-style"
+          caption_ext: "txt"
+          caption_dropout_rate: 0.05
+          resolution:
+            - 1024
+      train:
+        batch_size: 1
+        steps: 1000
+        gradient_accumulation_steps: 1
+        train_unet: true
+        train_text_encoder: false
+        gradient_checkpointing: true
+        noise_scheduler: "flowmatch"
+        optimizer: "adamw8bit"
+        lr: 0.0001
+        dtype: "bf16"
+        seed: 42
+        disable_sampling: false
+        timestep_type: "weighted"
+      model:
+        name_or_path: "<tmp>\\base.safetensors"
+        quantize: true
+        qtype: "qfloat8"
+        quantize_te: true
+        qtype_te: "qfloat8"
+        low_vram: true
+        arch: "example"
+      sample:
+        sampler: "flowmatch"
+        sample_every: 100
+        width: 1024
+        height: 1024
+        seed: 42
+        walk_seed: false
+        prompts:
+          - "a photo"
+meta:
+  name: "my-style"
+  version: "1.0"
+  trainwright_recipe: true
+
+=== config-kohya-out
+$ python tw.py config my-style.recipe.json --trainer kohya --out my-style.kohya.json
+{
+ "ok": true,
+ "trainer": "kohya",
+ "config": "my-style.kohya.json",
+ "proven_on_real_trainer": false,
+ "note": "unproven mapping: run a dry run of a few steps before trusting it"
+}
+exit 0
+
+=== config-kohya-overwrite
+$ python tw.py config copy.recipe.json --trainer kohya
+{
+ "ok": true,
+ "trainer": "kohya",
+ "config": "copy.recipe.json",
+ "proven_on_real_trainer": false,
+ "note": "unproven mapping: run a dry run of a few steps before trusting it"
+}
+exit 0
+
+=== config-kohya-overwrite-keys
+trainer, base, dataset, rank, alpha, lr, steps, batch, resolution, save_every, seed, quant, low_vram, trigger
+
+=== run-dry
+$ python tw.py run my-style.recipe.json my-style.recipe.yaml --dry
+{
+ "ok": true,
+ "dry": true,
+ "would_run": [
+  "/opt/ai-toolkit/venv/bin/python",
+  "/opt/ai-toolkit/run.py",
+  "<tmp>\\my-style.recipe.yaml"
+ ],
+ "fail": [],
+ "warn": [
+  "GPU busy (3% load, 11605 MB): queue behind it, never stop the other job"
+ ],
+ "note": "dry run: set config.steps to a few steps in a copy and run that as the smoke test"
+}
+exit 0
+
+=== check-nc
+$ python tw.py check my-style.recipe.json --shallow
+{
+ "ok": false,
+ "fail": [
+  "licence 'cc-by-nc-4.0' is non-commercial; the trained model inherits it and cannot be sellable"
+ ],
+ "warn": []
+}
+exit 2
+
+=== check-consent
+$ python tw.py check my-style.recipe.json --shallow
+{
+ "ok": false,
+ "fail": [
+  "dataset subject 'a friend' has no consent record (self | granted:YYYY-MM-DD <who> | public-domain | licensed:<terms> | synthetic)"
+ ],
+ "warn": []
+}
+exit 2
+
+=== check-collision
+$ python tw.py check my-style.recipe.json --shallow
+{
+ "ok": false,
+ "fail": [
+  "output.dir <tmp>\\output\\my-style is not empty: trainers like ai-toolkit resume a same-name run silently; use a new name"
+ ],
+ "warn": []
+}
+exit 2
+
+=== record
+$ python tw.py record my-style.recipe.json --score style_match=0.82 --score note=best at 300 --pick step_300 --files output/my-style/step_100.safetensors
+{
+ "ok": true,
+ "recipe": "my-style.recipe.json",
+ "still_missing": []
+}
+exit 0
+
+=== rerun
+$ python tw.py rerun my-style.recipe.json my-style-r2
+{
+ "ok": true,
+ "recipe": "my-style-r2.recipe.json",
+ "fail": [],
+ "warn": [
+  "GPU busy (0% load, 11605 MB): queue behind it, never stop the other job"
+ ],
+ "note": "same seed, config and dataset hashes; compare with tw.py diff after the run"
+}
+exit 0
+
+=== diff
+$ python tw.py diff my-style.recipe.json my-style-r2.recipe.json
+{
+ "ok": true,
+ "same_recipe": false,
+ "recipe_differences": {
+  "config.lr": [
+   0.0001,
+   5e-05
+  ]
+ },
+ "scores": {
+  "note": [
+   "best at 300",
+   null
+  ],
+  "style_match": [
+   0.82,
+   null
+  ]
+ }
+}
+exit 0
+
+=== leak
+$ python tw.py leak --root repo
+{
+ "ok": false,
+ "terms_from": "<tmp>\\home\\leak-terms.txt",
+ "hits": [
+  {
+   "file": "lora.safetensors",
+   "why": "media or weights file"
+  },
+  {
+   "file": "README.md",
+   "why": "sidecar term #1"
+  }
+ ]
+}
+exit 2
+
+=== leak-noterms
+$ python tw.py leak --root repo
+{
+ "ok": false,
+ "fail": [
+  "no leak-terms.txt in TRAINWRIGHT_HOME: the scan would prove nothing"
+ ]
+}
+exit 2
+
+=== leak-allow
+$ python tw.py leak --root repo --allow-no-terms
+{
+ "ok": false,
+ "terms_from": null,
+ "hits": [
+  {
+   "file": "lora.safetensors",
+   "why": "media or weights file"
+  }
+ ]
+}
+exit 2
+

@@ -110,6 +110,14 @@ class TwTests(unittest.TestCase):
         self.assertIn("save_every: 100", y)
         self.assertIn("linear: 16", y)
 
+    def test_config_other_trainer_keeps_recipe(self):
+        rp = self.make()
+        before = rp.read_text()
+        code, o = run("config", str(rp), "--trainer", "kohya", env=self.env)
+        self.assertEqual(code, 0, o)
+        self.assertEqual(rp.read_text(), before)
+        self.assertTrue(o["config"].endswith("r.kohya.json"), o)
+
     def test_rerun_and_diff_same(self):
         rp = self.make()
         code, o = run("rerun", str(rp), "r2", env=self.env)
