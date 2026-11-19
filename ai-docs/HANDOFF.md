@@ -1,14 +1,9 @@
-# Handoff: trainwright
+# trainwright HANDOFF
 
-Updated 2026-11-19. Read [INDEX.md](INDEX.md) first.
+0.1.0 released 2026-11-19 (public, tag v0.1.0, installed from mark-local).
 
-## State
-- Step E (fill the plugin) in progress. Written: SKILL.md, tw.py (new, hash, check, config, run, record, rerun, diff, leak), tests/test_tw.py, references (image, video, voice, llm, eval, ship, hardware), evergreen companions (evergreen.json tier fast 14 d, RESEARCH, CHANGELOG, LEARNINGS L-001..L-014, MAINTENANCE, TESTS, harvest.json), README, root CHANGELOG 0.1.0.
-- Nothing committed yet; repo files staged only.
-- Owner-specific harvest lives in the private sidecar (`$TRAINWRIGHT_HOME/notes/harvest.md`); `ai-docs/notes/harvest.md` is a public stub.
-- `tw.py leak` needs `TRAINWRIGHT_HOME` set to the sidecar to load leak-terms.txt.
-
-## Next
-1. Skill-on eval runs and decoys (evals/evals.json); log in skills/trainwright/TESTS.md.
-2. Prove non-ai-toolkit mappings (kohya, musubi-tuner, VoxCPM, Unsloth/TRL) with dry runs; record in LEARNINGS.
-3. Name re-check (pip, npm, GitHub), banner, commit, public repo, release.
+- Proven: image LoRA via ai-toolkit (SD1.5 proof run and rerun; see ai-docs/notes/proof.md, LEARNINGS L-015).
+- Unverified: video (musubi-tuner), voice (VoxCPM), LLM (Unsloth/TRL) config mappings; `tw.py config` labels them unproven.
+- Evals: 17/17 with skill, 5/7 bare (TESTS.md). Worth: KEEP.
+- Next: first real runs of the other kinds once the owner approves GPU hours; wiki at /wiki.
+- Owner-specific facts live in TRAINWRIGHT_HOME, never here.
