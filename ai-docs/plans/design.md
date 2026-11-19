@@ -20,7 +20,7 @@ One hub skill (`skills/trainwright/SKILL.md`). There are no siblings until a kin
 `new <kind>` (writes a recipe skeleton), `check <recipe>` (licence, consent, manifest hashes, disk and GPU gates), `config <recipe> --trainer T` (writes the trainer config), `run <recipe> [--dry]`, `record <recipe>` (fills scores and outputs), `rerun <recipe>`, `diff <a> <b>` (compares two runs), `leak` (public-file scan).
 
 ## Sidecar (`TRAINWRIGHT_HOME`, a folder in the everlast vault)
-Hosts and trainer install paths, measured speeds, Mark's datasets and their consent notes, per-project licence rulings and voice references. No dataset ever goes in the repository. `tw.py leak` fails the build on any sidecar term, IP address or media file in a public file (the pattern is brandwright check_public plus the everkeep overlay).
+Hosts and trainer install paths, measured speeds, the owner's datasets and their consent notes, per-project licence rulings and voice references. No dataset ever goes in the repository. `tw.py leak` fails the build on any sidecar term, IP address or media file in a public file (the pattern is brandwright check_public plus the everkeep overlay).
 
 ## Proof for each rule (step D decides which survive)
 A rule enters only if a bare case fails without it, or if it is a fact the model cannot know.
@@ -30,4 +30,4 @@ A rule enters only if a bare case fails without it, or if it is a fact the model
 - Consent gate. Case: train a voice from a relative's clips.
 - Early peak and save every 100 steps. Case: "train 2,000 steps on 90 images".
 - Blackwell needs cu128 or newer. Case: "no kernel image" error.
-- The Mac cannot train, and training holds the GPU. These are facts about Mark's setup, so they go in the sidecar.
+- The Mac cannot train, and training holds the GPU. These are facts about the owner's setup, so they go in the sidecar.
