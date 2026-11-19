@@ -1,0 +1,87 @@
+{
+  "evergreen": "1.0",
+  "name": "trainwright",
+  "kind": "skill",
+  "main": "SKILL.md",
+  "files": {
+    "research": "RESEARCH.md",
+    "changelog": "CHANGELOG.md",
+    "learnings": "LEARNINGS.md",
+    "tests": "TESTS.md"
+  },
+  "protocol": "plugin",
+  "source": null,
+  "topic": "Local LoRA, voice and LLM fine-tuning tools and methods on a 16 GB GPU",
+  "tier": "fast",
+  "interval_days": 14.0,
+  "last_checked": "2026-11-19",
+  "next_due": "2026-12-03",
+  "verify_at_use": false,
+  "volatile_claims": [
+    {
+      "claim": "ai-toolkit trains Z-Image, FLUX.2 klein, Qwen-Image and Wan 2.x LoRAs; resumes a same-name output folder",
+      "checked": "2026-11-19",
+      "recheck_days": 14
+    },
+    {
+      "claim": "musubi-tuner fits Wan 2.x LoRA on 16 GB with fp8 base and block swap",
+      "checked": "2026-11-19",
+      "recheck_days": 14
+    },
+    {
+      "claim": "Unsloth 4-bit QLoRA fits 7-8B comfortably and ~14B tight on 16 GB; runs on Windows",
+      "checked": "2026-11-19",
+      "recheck_days": 14
+    },
+    {
+      "claim": "VoxCPM LoRA fine-tune: VoxCPM1.5 ~12 GB, VoxCPM2 ~20 GB at batch 16 (official estimates)",
+      "checked": "2026-11-19",
+      "recheck_days": 14
+    },
+    {
+      "claim": "Blackwell sm_120 needs torch cu128+ wheels; flash-attn unavailable on Windows, use SDPA; triton-windows",
+      "checked": "2026-11-19",
+      "recheck_days": 30
+    },
+    {
+      "claim": "llama.cpp convert_hf_to_gguf.py + llama-quantize; Ollama Modelfile FROM/ADAPTER",
+      "checked": "2026-11-19",
+      "recheck_days": 30
+    }
+  ],
+  "contradiction": null,
+  "events": [],
+  "streak": {
+    "quiet": 0,
+    "pinned_min": 0,
+    "pinned_max": 0,
+    "vau_quiet": 0
+  },
+  "history": [
+    {
+      "date": "2026-11-19",
+      "m": null,
+      "interval_after": 14,
+      "note": "created"
+    }
+  ],
+  "counts": {
+    "learnings": 14,
+    "changes": 1,
+    "research": 3,
+    "tests": 1
+  },
+  "consolidate_every": 25,
+  "tests": {
+    "last_run": null,
+    "harness": null,
+    "env": null,
+    "cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "failing": [],
+    "last_failure": null,
+    "research_after_days": null
+  },
+  "version": "0.1.0"
+}

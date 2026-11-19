@@ -1,0 +1,7 @@
+{
+  "name": "trainwright",
+  "owner": {"name": "m4bwav"},
+  "metadata": {"description": "Repeatable local model training as recipe records"},
+  "plugins": [{"name": "trainwright", "source": "./", "version": "0.1.0",
+    "description": "Repeatable local model training: LoRAs, voice and LLM fine-tunes as rerunnable recipe records with licence and consent gates and evals against the base."}]
+}

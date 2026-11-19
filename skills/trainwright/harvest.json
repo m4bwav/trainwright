@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "targets": [
+    {
+      "kind": "reddit",
+      "sub": "StableDiffusion",
+      "keep": "LoRA training settings, 16 GB fits, ai-toolkit/kohya/musubi reports, early-peak and overcooking"
+    },
+    {
+      "kind": "reddit",
+      "sub": "LocalLLaMA",
+      "keep": "QLoRA fine-tunes on 16 GB, GGUF quantization, Ollama import"
+    },
+    {
+      "kind": "reddit",
+      "sub": "comfyui",
+      "keep": "using trained LoRAs, Wan video LoRA training"
+    },
+    {
+      "kind": "reddit",
+      "sub": "unsloth",
+      "keep": "Unsloth releases, Windows and Blackwell support, VRAM fits"
+    },
+    {
+      "kind": "github-releases",
+      "repo": "ostris/ai-toolkit",
+      "keep": "new model support, config keys, resume behaviour"
+    },
+    {
+      "kind": "github-releases",
+      "repo": "kohya-ss/sd-scripts",
+      "keep": "flags, Flux/SDXL support"
+    },
+    {
+      "kind": "github-releases",
+      "repo": "kohya-ss/musubi-tuner",
+      "keep": "Wan/Hunyuan/Qwen-Image support, memory flags"
+    },
+    {
+      "kind": "github-releases",
+      "repo": "unslothai/unsloth",
+      "keep": "supported models, export to GGUF, Windows"
+    },
+    {
+      "kind": "github-releases",
+      "repo": "OpenBMB/VoxCPM",
+      "keep": "fine-tune script, YAML keys, VRAM estimates"
+    },
+    {
+      "kind": "github-releases",
+      "repo": "ggml-org/llama.cpp",
+      "keep": "convert_hf_to_gguf, LoRA adapter conversion, quant types"
+    }
+  ]
+}
