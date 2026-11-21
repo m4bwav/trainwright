@@ -18,6 +18,7 @@ tw.py config <recipe> [--trainer ai-toolkit]            trainer config (ai-toolk
 tw.py run <recipe> <config> [--dry]                     runs the trainer from hosts.json, logs it into the recipe
 tw.py record <recipe> --score k=v --pick step_N --files <out>
 tw.py rerun <recipe> <new-name>    tw.py diff <a> <b>    tw.py leak --root <repo>
+tw.py compare --paired <a.jsonl> <b.jsonl> [--pairs K]   McNemar on per-item results
 ```
 
 ## The loop

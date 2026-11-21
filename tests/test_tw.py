@@ -154,6 +154,53 @@ class TwTests(unittest.TestCase):
         code, o = run("leak", "--root", str(repo), env={"TRAINWRIGHT_HOME": str(self.d / "none")})
         self.assertEqual(code, 2)
 
+    def test_loss_at_chance_warns(self):
+        rp = self.make()
+        code, o = run("record", str(rp), "--score", "eval_loss=10.5", "--vocab", "50257", env=self.env)
+        self.assertTrue(any("LOSS-AT-CHANCE" in w for w in o["warn"]), o)
+        code, o = run("record", str(rp), "--score", "eval_loss=2.1", env=self.env)
+        self.assertEqual(o["warn"], [], o)
+
+    def test_diff_refuses_eval_mismatch(self):
+        rp = self.make()
+        code, o = run("rerun", str(rp), "r2", env=self.env)
+        r2 = Path(o["recipe"])
+        for p, w in ((rp, 1024), (r2, 32)):
+            r = json.loads(p.read_text()); r["eval"]["window"] = w; r["eval"]["scores"] = {"ppl": 10.0}
+            p.write_text(json.dumps(r))
+        code, d = run("diff", str(rp), str(r2))
+        self.assertEqual(code, 2, d)
+        self.assertIn("EVAL-MISMATCH", d["fail"][0])
+        r = json.loads(r2.read_text()); r["eval"]["window"] = 1024; r2.write_text(json.dumps(r))
+        code, d = run("diff", str(rp), str(r2))
+        self.assertEqual(code, 0, d)
+
+    def jsonl(self, name, rows):
+        p = self.d / name
+        p.write_text("\n".join(json.dumps(r) for r in rows))
+        return str(p)
+
+    def test_compare_paired(self):
+        a = self.jsonl("a.jsonl", [{"id": i, "correct": i < 250} for i in range(300)])
+        b = self.jsonl("b.jsonl", [{"id": i, "correct": i < 200} for i in range(300)])
+        code, o = run("compare", "--paired", a, b)
+        self.assertEqual((o["only_a_right"], o["only_b_right"]), (50, 0), o)
+        self.assertEqual(o["verdict"], "a better")
+        self.assertEqual(o["warn"], [])
+        b2 = self.jsonl("b2.jsonl", [{"id": i, "correct": i < 247 or i == 299} for i in range(300)])
+        code, o = run("compare", "--paired", a, b2, "--pairs", "3")
+        self.assertEqual(o["verdict"], "not distinguishable", o)
+
+    def test_compare_small_and_nan(self):
+        a = self.jsonl("a.jsonl", [{"id": i, "correct": True} for i in range(20)])
+        b = self.jsonl("b.jsonl", [{"id": i, "correct": False} for i in range(20)])
+        code, o = run("compare", "--paired", a, b)
+        self.assertTrue(o["warn"] and "indicative" in o["warn"][0], o)
+        n = self.d / "n.jsonl"; n.write_text('{"id": 1, "correct": true, "logprob": NaN}')
+        code, o = run("compare", "--paired", a, str(n))
+        self.assertEqual(code, 2)
+        self.assertIn("EVAL-NAN", o["fail"][0])
+
 
 if __name__ == "__main__":
     unittest.main()

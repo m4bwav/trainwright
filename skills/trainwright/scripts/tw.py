@@ -9,6 +9,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
@@ -346,11 +347,23 @@ def cmd_record(a):
         r["eval"]["picked"] = a.pick
     if a.files:
         r["output"]["files"] = [{"file": f, "sha256": sha256(f)} for f in a.files]
+    if a.vocab:
+        r["eval"]["vocab"] = a.vocab
     save_json(a.recipe, r)
     missing = [k for k in ("picked",) if not r["eval"].get(k)]
     if not r["eval"]["scores"]:
         missing.append("scores")
-    out({"ok": True, "recipe": a.recipe, "still_missing": missing})
+    warn = []
+    v = r["eval"].get("vocab")
+    for k in ("eval_loss", "loss"):
+        loss = r["eval"]["scores"].get(k)
+        if v and isinstance(loss, float):
+            chance = math.log(int(v))
+            if loss >= 0.9 * chance:
+                warn.append(f"LOSS-AT-CHANCE: {k} {loss} >= 0.9 x ln({v}) = {0.9 * chance:.2f}; "
+                            "nothing learned, or labels or template broken")
+            break
+    out({"ok": True, "recipe": a.recipe, "still_missing": missing, "warn": warn})
 
 
 # ---------- rerun ----------
@@ -383,12 +396,63 @@ def flat(o, pre=""):
 
 def cmd_diff(a):
     x, y = flat(load_json(a.a)), flat(load_json(a.b))
+    mm = {k: [x.get(k), y.get(k)] for k in EVAL_SETUP if x.get(k) != y.get(k)}
+    if mm and (load_json(a.a)["eval"].get("scores") or load_json(a.b)["eval"].get("scores")):
+        out({"ok": False, "fail": ["EVAL-MISMATCH: scores were measured on a different eval setup; "
+                                   "rerun both with the same tokens, window, stride and tokenizer"],
+             "eval_setup_differences": mm}, 2)
     skip = re.compile(r"^(name|runs|output|rerun_of|eval\.scores|eval\.picked)")
     keys = sorted(set(x) | set(y))
     d = {k: [x.get(k), y.get(k)] for k in keys if not skip.match(k) and x.get(k) != y.get(k)}
     sx, sy = load_json(a.a)["eval"].get("scores", {}), load_json(a.b)["eval"].get("scores", {})
     sd = {k: [sx.get(k), sy.get(k)] for k in sorted(set(sx) | set(sy))}
     out({"ok": True, "same_recipe": not d, "recipe_differences": d, "scores": sd})
+
+
+EVAL_SETUP = ("eval.window", "eval.stride", "eval.tokens_hash", "eval.tokenizer", "eval.decode")
+
+
+# ---------- compare ----------
+def load_items(p):
+    items, nan = {}, 0
+    for n, line in enumerate(Path(p).read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip():
+            continue
+        o = json.loads(line)
+        nan += any(isinstance(v, float) and math.isnan(v) for v in o.values())
+        items[str(o.get("id", n))] = bool(o["correct"])
+    return items, nan
+
+
+def mcnemar_p(b, c):
+    """Exact two-sided McNemar: binomial(b + c, 0.5) on the disagreements."""
+    n = b + c
+    if n == 0:
+        return 1.0
+    tail = sum(math.comb(n, i) for i in range(min(b, c) + 1)) / 2 ** n
+    return min(1.0, 2 * tail)
+
+
+def cmd_compare(a):
+    xa, na = load_items(a.a)
+    xb, nb = load_items(a.b)
+    if na or nb:
+        out({"ok": False, "fail": [f"EVAL-NAN: NaN values in results ({na} in a, {nb} in b); "
+                                   "score with log_softmax, not a hand-written softmax"]}, 2)
+    ids = sorted(set(xa) & set(xb))
+    if not ids:
+        out({"ok": False, "fail": ["no shared item ids"]}, 2)
+    b = sum(xa[i] and not xb[i] for i in ids)
+    c = sum(xb[i] and not xa[i] for i in ids)
+    pv = mcnemar_p(b, c)
+    thr = 0.05 / max(1, a.pairs)
+    warn = [] if len(ids) >= 200 else [f"only {len(ids)} items: any ranking is indicative; a blind human pass decides"]
+    if set(xa) != set(xb):
+        warn.append(f"{len(set(xa) ^ set(xb))} items in only one file were left out")
+    out({"ok": True, "items": len(ids), "acc_a": round(sum(xa[i] for i in ids) / len(ids), 4),
+         "acc_b": round(sum(xb[i] for i in ids) / len(ids), 4), "only_a_right": b, "only_b_right": c,
+         "p": round(pv, 6), "threshold": thr,
+         "verdict": ("a better" if b > c else "b better") if pv < thr else "not distinguishable", "warn": warn})
 
 
 # ---------- leak ----------
@@ -443,7 +507,8 @@ def main(argv=None):
     p = sp.add_parser("hash"); p.add_argument("path"); p.add_argument("--manifest", action="store_true"); p.add_argument("--source"); p.set_defaults(f=cmd_hash)
     p = sp.add_parser("config"); p.add_argument("recipe"); p.add_argument("--trainer"); p.add_argument("--out"); p.set_defaults(f=cmd_config)
     p = sp.add_parser("run"); p.add_argument("recipe"); p.add_argument("config"); p.add_argument("--dry", action="store_true"); p.add_argument("--steps", type=int, default=5); p.set_defaults(f=cmd_run)
-    p = sp.add_parser("record"); p.add_argument("recipe"); p.add_argument("--score", action="append"); p.add_argument("--pick"); p.add_argument("--files", nargs="*"); p.set_defaults(f=cmd_record)
+    p = sp.add_parser("record"); p.add_argument("recipe"); p.add_argument("--score", action="append"); p.add_argument("--pick"); p.add_argument("--files", nargs="*"); p.add_argument("--vocab", type=int); p.set_defaults(f=cmd_record)
+    p = sp.add_parser("compare"); p.add_argument("a"); p.add_argument("b"); p.add_argument("--paired", action="store_true"); p.add_argument("--pairs", type=int, default=1); p.set_defaults(f=cmd_compare)
     p = sp.add_parser("rerun"); p.add_argument("recipe"); p.add_argument("name"); p.set_defaults(f=cmd_rerun)
     p = sp.add_parser("diff"); p.add_argument("a"); p.add_argument("b"); p.set_defaults(f=cmd_diff)
     p = sp.add_parser("leak"); p.add_argument("--root", default="."); p.add_argument("--allow-no-terms", action="store_true"); p.set_defaults(f=cmd_leak)
