@@ -22,6 +22,10 @@ A checkpoint is picked by comparing it with the base model on held-out inputs, n
 - **lm-evaluation-harness** (EleutherAI): run the same tasks on base and fine-tune (`lm_eval --model hf --model_args pretrained=<path>,peft=<adapter> --tasks <tasks>`) to catch lost general skill.
 - A **held-out prompt sheet** from the target task, answered by base and fine-tune, compared blind by a person or a judge model with the order swapped.
 - After GGUF quantization, re-run a few prompts: quantization can undo a small fine-tune.
+- **Loss floor**: an untrained model's held-out loss is ln(vocab), about 10.8 for 50k tokens. `tw.py record --score eval_loss=X --vocab N` warns `LOSS-AT-CHANCE` at 0.9 x ln(N) or above: nothing was learned, or labels or template are broken (Cohen 2025, ch. 4, loss project).
+- **Like with like**: perplexity moved from about 800 to 185 for one model just by raising the window from 32 to 1024 tokens. Record `eval.window`, `eval.stride`, `eval.tokens_hash`, `eval.tokenizer` and, for generated answers, `eval.decode` (greedy, or temperature, top-p and seed); `tw.py diff` refuses scores from different setups (`EVAL-MISMATCH`) (ch. 4, perplexity project).
+- **Own multiple-choice sheet** (when lm-eval-harness does not fit): score each choice by the mean log-probability of the choice's tokens only, context left out, averaged so long answers are not penalised. Use log_softmax, never a hand-written softmax (ch. 4, HellaSwag project).
+- **Paired compare**: base and fine-tune answer the same items, so test the items where they disagree: `tw.py compare --paired a.jsonl b.jsonl [--pairs K]` (lines `{"id":..., "correct": true}`) runs an exact McNemar test with threshold 0.05/K for K checkpoint pairs and says "not distinguishable" above it; under 200 items any ranking is indicative and the blind human pass decides; NaN values refuse (`EVAL-NAN`). Dedupe the sheet first: the test assumes independent items (ch. 4, HellaSwag part 6).
 
 ## Record
 

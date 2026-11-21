@@ -4,6 +4,11 @@ Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with
 
 Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
 
+### C-20261121-1 · 2026-11-21 · LLM eval honesty: loss floor, eval-setup match, answer-token scoring, paired compare
+- because: Cohen, 50 ML Projects to Understand LLMs (2025), ch. 4
+- files: references/eval.md (LLMs), references/llm.md (Pitfalls), SKILL.md (verbs), scripts/tw.py (record --vocab, diff, compare)
+- `record` warns LOSS-AT-CHANCE, `diff` refuses EVAL-MISMATCH, new `compare --paired` (exact McNemar, Bonferroni, indicative under 200 items, EVAL-NAN).
+
 ### C-20261119-1 · 2026-11-19 · 0.1.0: created as an evergreen unit
 - because: user request, R-20261119-1, R-20261119-2, R-20261119-3
 - files: SKILL.md, references/ (image, video, voice, llm, eval, ship, hardware), scripts/tw.py, RESEARCH.md, LEARNINGS.md, TESTS.md, evergreen.json, harvest.json, evals/evals.json

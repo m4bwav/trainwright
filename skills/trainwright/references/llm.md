@@ -36,6 +36,8 @@ For Axolotl the same keys sit in its YAML: `lora_r`, `lora_alpha`, `learning_rat
 ## Pitfalls
 
 - Use the base's own chat template for training and inference; a mismatch looks like a broken fine-tune.
+- Batched padding needs the attention mask, padded positions left out of the loss, and a pad token (GPT-style tokenizers often have none); without the mask losses are quietly wrong.
+- Call `model.eval()` before scoring: dropout left on gives noisy, unrepeatable numbers.
 - Hold out 5-10 % of examples and evaluate base vs fine-tune on them ([eval.md](eval.md)); a falling loss alone proves nothing.
 - Same-name output folders resume from the last checkpoint in most trainers: use a new run name.
 - Merge the adapter into a 16-bit copy of the base before GGUF conversion, not into the 4-bit one ([ship.md](ship.md)).
