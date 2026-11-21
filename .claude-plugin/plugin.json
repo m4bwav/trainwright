@@ -1,6 +1,6 @@
 {
   "name": "trainwright",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Repeatable local model training: image and video LoRAs, voice and small LLM fine-tunes as rerunnable recipe records with licence and consent gates, evals against the base model, GGUF and Ollama import. tw.py new, check, config, run, record, rerun, diff, leak.",
   "skills": "./skills",
   "author": {"name": "m4bwav"},

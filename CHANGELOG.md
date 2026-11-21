@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 0.2.0 (2026-11-21)
 - `tw.py compare --paired` (exact McNemar on per-item results), `record --vocab` warns LOSS-AT-CHANCE, `diff` refuses scores from different eval setups (EVAL-MISMATCH); LLM eval and pitfall rules from Cohen's 50 ML Projects to Understand LLMs.
 
 ## 0.1.1 (2026-11-19)
