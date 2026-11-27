@@ -23,6 +23,7 @@ Facts for a single 16 GB NVIDIA GPU on Windows or Linux. Host names, install pat
 
 - Training holds the GPU for hours. Find an idle host first (labwright `lw.py status`), queue behind a busy one, never stop another job, and keep render queues empty during a run.
 - Launch long runs detached and log to a file; a session may see no output for hours.
+- When the GPU host also runs ComfyUI, put the training on ComfyUI's queue instead of beside it: copy `comfyui/trainwright_nodes` into ComfyUI's `custom_nodes`, restart ComfyUI once while its queue is empty, write a job file (`{"name", "log", "steps": [{"cwd", "cmd": [argv], "env"}]}`) and queue a one-node API workflow `{"1": {"class_type": "TrainwrightJob", "inputs": {"job_file": "<path>"}}}` to `/prompt`. The node unloads ComfyUI's models, runs the steps in order, logs to the job's log, and fails on a non-zero exit; renders queued later wait their turn.
 - Smoke run first: a few steps on a copy of the recipe (`tw.py run <recipe> <config> --dry`, then `--steps 5`).
 - Disk: checkpoints every 100 steps add up (a 6B-base LoRA save is tens to hundreds of MB); check the free-space floor before a run (`tw.py check`).
 - Apple Silicon: inference yes; training mid-size diffusion bases ran out of MPS memory. Train on the NVIDIA host.

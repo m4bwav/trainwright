@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.3.0 (2026-11-27)
+- ComfyUI node `TrainwrightJob` (skills/trainwright/comfyui) runs a training job on ComfyUI's queue, so training waits behind renders instead of fighting them.
+- Smoke runs passed for video (musubi-tuner, Wan2.1 1.3B), voice (VoxCPM2 LoRA) and LLM (Unsloth QLoRA); `tw.py config` now labels those mappings smoke-proven. LEARNINGS L-018 to L-021.
+
 ## 0.2.0 (2026-11-21)
 - `tw.py compare --paired` (exact McNemar on per-item results), `record --vocab` warns LOSS-AT-CHANCE, `diff` refuses scores from different eval setups (EVAL-MISMATCH); LLM eval and pitfall rules from Cohen's 50 ML Projects to Understand LLMs.
 
