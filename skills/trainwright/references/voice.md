@@ -21,7 +21,9 @@ Figures are the project's own estimates (docs, 2.0.3); not yet measured here.
 - A denoise pass made no audible difference on clean takes; skip it unless the source is noisy.
 - Run `voxcpm validate` on the manifest before any training.
 
-## Mapping for VoxCPM (unproven; dry run first)
+## Mapping for VoxCPM (smoke-proven on VoxCPM2 LoRA)
+
+Smoke run 2026-11-27: VoxCPM2 LoRA, batch 2, grad_accum 1, 20 steps, about 2.5 s/step on 16 GB with `scripts/train_voxcpm_finetune.py --config_path` (L-021). Start from `conf/voxcpm_v2/voxcpm_finetune_lora.yaml`; `sample_rate` must stay 16000.
 
 `tw.py config --trainer voxcpm` writes neutral JSON. Copy into the trainer YAML:
 

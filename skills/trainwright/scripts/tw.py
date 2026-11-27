@@ -279,6 +279,9 @@ def aitoolkit_config(r):
             "meta": {"name": r["name"], "version": "1.0", "trainwright_recipe": True}}
 
 
+SMOKE_PROVEN = {"musubi-tuner", "voxcpm", "unsloth"}  # 20-step smoke runs passed 2026-11-27
+
+
 def cmd_config(a):
     r = load_json(a.recipe)
     t = a.trainer or r["trainer"]["name"]
@@ -299,9 +302,9 @@ def cmd_config(a):
         if outp.resolve() == Path(a.recipe).resolve():
             out({"ok": False, "error": "config output would overwrite the recipe; pass --out"}, 1)
         save_json(outp, {"trainer": t, "base": r["base"]["path"], "dataset": r["dataset"]["root"], **r["config"]})
-        proven = False
+        proven = "smoke" if t in SMOKE_PROVEN else False
     out({"ok": True, "trainer": t, "config": str(outp), "proven_on_real_trainer": proven,
-         "note": None if proven else "unproven mapping: run a dry run of a few steps before trusting it"})
+         "note": None if proven is True else ("smoke-proven mapping (20 steps); full runs unmeasured" if proven else "unproven mapping: run a dry run of a few steps before trusting it")})
 
 
 # ---------- run ----------

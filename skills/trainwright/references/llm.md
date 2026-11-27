@@ -1,6 +1,6 @@
 # Small LLM fine-tune
 
-QLoRA on a 16 GB GPU. Using local models belongs to local-delegate; cloud training on HF Jobs is the Hugging Face model-trainer skill. No first-hand run backs this page yet: settings are unverified until a smoke run records them.
+QLoRA on a 16 GB GPU. Using local models belongs to local-delegate; cloud training on HF Jobs is the Hugging Face model-trainer skill. Smoke-proven 2026-11-27: Unsloth QLoRA of Qwen2.5-0.5B-Instruct, 20 steps in 30 s, learned the trigger format (L-020).
 
 ## Trainer choice
 
@@ -16,7 +16,7 @@ Prefer an ungated base (Qwen, Mistral, Gemma, Phi family) and read its licence; 
 
 rank 16, alpha 16-32, lr 2e-4, batch 2 with grad accumulation 4-8, max sequence 2,048, 1-3 epochs, `save_every: 100`, seed fixed, 4-bit base (`quant: nf4`). A few hundred to a few thousand clean examples beat many noisy ones.
 
-## Mapping (unproven; dry run first)
+## Mapping (Unsloth smoke-proven; TRL and Axolotl unproven)
 
 `tw.py config --trainer unsloth|trl` writes neutral JSON. Map it:
 
