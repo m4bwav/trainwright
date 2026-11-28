@@ -1,6 +1,6 @@
 # AGENTS.md: trainwright
 
-Claude Code plugin (one skill): repeatable local model training kept as rerunnable recipe records.
+Agent plugin (one skill): repeatable local model training kept as rerunnable recipe records.
 
 - Layout: `.claude-plugin/plugin.json`; `skills/trainwright/` (SKILL.md, references/, scripts/tw.py, evals/, evergreen files); `tests/`.
 - Before committing: `python -m unittest discover -s tests` with `TRAINWRIGHT_HOME` pointing at the private sidecar. The leak test fails when no term list is found.
